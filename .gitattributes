@@ -1,3 +1,2 @@
-Rainfall_app/data/*.csv filter=lfs diff=lfs merge=lfs -text
-Rainfall_app/data/feature_engineered_data.csv filter=lfs diff=lfs merge=lfs -text
-Data/Preprocessed/feature_engineered_data.csv filter=lfs diff=lfs merge=lfs -text
+
+Rainfall_app/Data/feature_engineered_data.csv filter=lfs diff=lfs merge=lfs -text
