@@ -109,7 +109,9 @@ st.markdown('<hr>', unsafe_allow_html=True)
 with st.container():
     st.markdown('<div class="footer" role="contentinfo" aria-label="Footer with Data Source and Author Information">', unsafe_allow_html=True)
     st.markdown("""
-        **Data Source**: https://cdhm.tu.edu.np" Central Department of Hydrology and Meteorology, Tribhuvan University, Nepal</a>  
+        **Data Source**: https://cdhm.tu.edu.np" Central Department of Hydrology and Meteorology,
+          
+                Tribhuvan University, Nepal.
         **Application Developed By**: Rangit Sapkota  
                Kathmandu, Nepal
     """)
