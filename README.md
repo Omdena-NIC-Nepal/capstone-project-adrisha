@@ -18,7 +18,7 @@
             |   |      ├── 3_Regional_Analysis.py
             |   |      |__ 4_New_Insights.py
             |   |      |__ 5_Feedback.py
-            |   |__  data/
+            |   |__  Data/
             |   |       |__feature_engineered_data.csv
             |   |       |__best_random_forest_regressor_model.pkl
             |   |       |__ best_random_forest_classifier_model.pkl
