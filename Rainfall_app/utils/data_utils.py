@@ -48,7 +48,7 @@ def load_regional_performance_classification():
     return pd.read_csv(file_path, index_col='station_id')
 
 def load_model_evaluation_results():
-    file_path = 'Data/model_evaluation_results.csv'
+    file_path = "Data/model_evaluation_results.csv"
+    print(f"Checking file path: {file_path}")
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
-    return pd.read_csv(file_path)
