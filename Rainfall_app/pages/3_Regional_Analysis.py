@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from streamlit_folium import st_folium
+from utils.data_utils import load_regional_performance_regression, load_regional_performance_classification, load_feature_data
 from utils.visualization_utils import plot_station_map
 import folium
 
@@ -92,16 +93,6 @@ with st.container():
     st.title("📍 Regional Analysis Dashboard")
     st.markdown("Explore regression and classification performance across stations with interactive visualizations.")
 
-# Load data functions
-def load_regional_performance_regression():
-    return pd.read_csv('data/regional_performance_regression.csv', index_col='station_id')
-
-def load_regional_performance_classification():
-    return pd.read_csv('data/regional_performance_classification.csv', index_col='station_id')
-
-def load_feature_data():
-    return pd.read_csv('data/feature_engineered_data.csv')
-
 # Load performance data
 reg_perf = load_regional_performance_regression()
 clf_perf = load_regional_performance_classification()
@@ -183,7 +174,7 @@ with st.container():
     st.markdown('<div class="card" role="region" aria-label="Station Performance Map Section">', unsafe_allow_html=True)
     st.subheader("🗺️ Station Performance Map")
     
-    # List of predefined locations (unchanged as per requirement)
+    # List of predefined locations
     locations_data = {
         'Rajbiraj': {'lat': 26.5419, 'lon': 86.7567},
         'Siraha': {'lat': 26.6397, 'lon': 86.1853},

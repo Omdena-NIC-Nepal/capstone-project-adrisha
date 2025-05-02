@@ -1,27 +1,54 @@
-
 import pandas as pd
+import pickle
+import os
 
 def load_feature_data():
-      return pd.read_csv('../Rainfall_app/data/feature_engineered_data.csv')
+    file_path = 'Data/feature_engineered_data.csv'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path)
 
 def load_reg_model():
-      return pd.read_pickle('../Rainfall_app/models/best_random_forest_regressor_model.pkl')
+    file_path = 'Data/best_random_forest_regressor_model.pkl'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, 'rb') as f:
+        return pickle.load(f)
 
 def load_clf_model():
-      return pd.read_pickle('../Rainfall_app/models/best_random_forest_classifier_model.pkl')
+    file_path = 'Data/best_random_forest_classifier_model.pkl'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, 'rb') as f:
+        return pickle.load(f)
 
 def load_nlp_results():
-      return pd.read_csv('../Rainfall_app/data/nlp_results.csv')
+    file_path = 'Data/nlp_results.csv'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path)
 
 def load_lda_topics():
-      with open('../Rainfall_app/data/lda_topics.txt', 'r') as f:
-          return f.read()
+    file_path = 'Data/lda_topics.txt'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    with open(file_path, 'r') as f:
+        return f.read()
 
 def load_regional_performance_regression():
-      return pd.read_csv('../Rainfall_app/data/regional_performance_regression.csv', index_col='station_id')
+    file_path = 'Data/regional_performance_regression.csv'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path, index_col='station_id')
 
 def load_regional_performance_classification():
-      return pd.read_csv('../Rainfall_app/data/regional_performance_classification.csv', index_col='station_id')
+    file_path = 'Data/regional_performance_classification.csv'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path, index_col='station_id')
 
 def load_model_evaluation_results():
-    return pd.read_csv('../Rainfall_app/data/model_evaluation_results.csv')
+    file_path = 'Data/model_evaluation_results.csv'
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+    return pd.read_csv(file_path)

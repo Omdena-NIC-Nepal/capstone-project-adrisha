@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from utils.data_utils import load_feature_data, load_reg_model, load_clf_model
 from utils.visualization_utils import plot_time_series
-import uuid
 
 # Set page configuration
 st.set_page_config(page_title="Rainfall Prediction Dashboard", layout="centered", initial_sidebar_state="expanded")
@@ -60,7 +59,6 @@ st.markdown("""
         font-weight: 600;
         font-size: clamp(1.4rem, 4vw, 1.8rem);
     }
-    /* Mobile adjustments */
     @media (max-width: 600px) {
         .main {
             padding: 10px;
@@ -122,14 +120,17 @@ filtered_data = data[
     (pd.to_datetime(data['date']) <= pd.to_datetime(date_range[1]))
 ]
 
-# Feature columns
-feature_columns = [
-    'ele(meter)', 'lat(deg)', 'lon(deg)', 'year', 'month', 'day_of_year',
-    'yearly_rainfall', 'monthly_rainfall', 'prev_day_rainfall',
-    'rolling_mean_7d', 'station_name_x_encoded', 'log_rainfall_sum',
-    'log_monthly_rainfall', 'log_prev_day_rainfall', 'log_rolling_mean_7d',
-    'pca_component_1', 'pca_component_2', 'pca_component_3'
-]
+# Feature columns (use model features)
+try:
+    feature_columns = reg_model.feature_names_in_.tolist()
+except AttributeError:
+    feature_columns = [
+        'ele(meter)', 'lat(deg)', 'lon(deg)', 'year', 'month', 'day_of_year',
+        'yearly_rainfall', 'monthly_rainfall', 'prev_day_rainfall',
+        'rolling_mean_7d', 'station_name_x_encoded', 'log_rainfall_sum',
+        'log_monthly_rainfall', 'log_prev_day_rainfall', 'log_rolling_mean_7d',
+        'pca_component_1', 'pca_component_2', 'pca_component_3'
+    ]
 required_columns = ['date', 'rainfall_sum'] + feature_columns
 
 # Main content
@@ -162,7 +163,7 @@ if not filtered_data.empty:
                 st.error(f"Error generating predictions: {str(e)}")
                 st.code("""
 import pickle
-with open('../Rainfall_app/models/best_random_forest_regressor_model.pkl', 'rb') as f:
+with open('Data/best_random_forest_regressor_model.pkl', 'rb') as f:
     model = pickle.load(f)
 print(model.feature_names_in_)
                 """)
@@ -193,42 +194,124 @@ with st.container():
     st.markdown('<div class="card" role="region" aria-label="New Prediction Section">', unsafe_allow_html=True)
     st.subheader("🔮 Make a New Prediction")
     
-    # Input form with expanders for better mobile usability
+    # Debug: Print data columns and model expectations
+    with st.expander("Debug: Data and Model Info"):
+        st.write("Columns in loaded data:", data.columns.tolist())
+        try:
+            st.write("Expected features (reg_model):", reg_model.feature_names_in_)
+            st.write("Expected features (clf_model):", clf_model.feature_names_in_)
+        except AttributeError:
+            st.warning("Model does not have feature_names_in_ attribute.")
+        st.write("NaN counts:", data.isna().sum().to_dict())
+        st.write("Inf counts:", data.isin([float('inf'), -float('inf')]).sum().to_dict())
+    
+    # Check for missing feature columns
+    missing_features = [col for col in feature_columns if col not in data.columns]
+    if missing_features:
+        st.warning(f"Missing feature columns in data: {missing_features}")
+    
+    # Test single slider
+    with st.expander("Test Single Slider"):
+        test_value = st.slider("Test Slider", min_value=0.0, max_value=100.0, value=50.0, step=0.1, key="test_slider")
+        st.write(f"Test slider value: {test_value}")
+    
+    # Input form with sliders (static ranges for simplicity)
     input_data = {}
     with st.expander("Geographical Features"):
         for col in ['ele(meter)', 'lat(deg)', 'lon(deg)']:
-            if col in data.columns:
-                input_data[col] = st.number_input(f"{col}", 
-                                                value=float(data[col].mean()), 
-                                                step=0.1,
-                                                key=f"input_{col}_{uuid.uuid4()}")
+            min_val, max_val, default_val = -100.0, 1000.0, 0.0
+            if col in data.columns and not data[col].isna().all():
+                min_val = float(data[col].dropna().min())
+                max_val = float(data[col].dropna().max())
+                default_val = float(data[col].dropna().mean())
+            else:
+                st.warning(f"Column {col} not found or contains only NaN. Using default range.")
+            input_data[col] = st.slider(f"{col}", 
+                                       min_value=min_val, 
+                                       max_value=max_val, 
+                                       value=default_val, 
+                                       step=0.1,
+                                       key=f"slider_{col}")
     with st.expander("Temporal Features"):
         for col in ['year', 'month', 'day_of_year']:
-            if col in data.columns:
-                input_data[col] = st.number_input(f"{col}", 
-                                                value=float(data[col].mean()), 
-                                                step=0.1,
-                                                key=f"input_{col}_{uuid.uuid4()}")
+            if col == 'year':
+                min_val, max_val, default_val = 2000.0, 2025.0, 2020.0
+            elif col == 'month':
+                min_val, max_val, default_val = 1.0, 12.0, 6.0
+            else:  # day_of_year
+                min_val, max_val, default_val = 1.0, 366.0, 180.0
+            if col in data.columns and not data[col].isna().all():
+                min_val = float(data[col].dropna().min())
+                max_val = float(data[col].dropna().max())
+                default_val = float(data[col].dropna().mean())
+            else:
+                st.warning(f"Column {col} not found or contains only NaN. Using default range.")
+            step = 1.0 if col in ['year', 'month'] else 0.1
+            input_data[col] = st.slider(f"{col}", 
+                                       min_value=min_val, 
+                                       max_value=max_val, 
+                                       value=default_val, 
+                                       step=step,
+                                       key=f"slider_{col}")
     with st.expander("Rainfall Features"):
         for col in ['yearly_rainfall', 'monthly_rainfall', 'prev_day_rainfall', 'rolling_mean_7d']:
-            if col in data.columns:
-                input_data[col] = st.number_input(f"{col}", 
-                                                value=float(data[col].mean()), 
-                                                step=0.1,
-                                                key=f"input_{col}_{uuid.uuid4()}")
+            min_val, max_val, default_val = 0.0, 1000.0, 0.0
+            if col in data.columns and not data[col].isna().all():
+                min_val = float(data[col].dropna().min())
+                max_val = float(data[col].dropna().max())
+                default_val = float(data[col].dropna().mean())
+            else:
+                st.warning(f"Column {col} not found or contains only NaN. Using default range.")
+            input_data[col] = st.slider(f"{col}", 
+                                       min_value=min_val, 
+                                       max_value=max_val, 
+                                       value=default_val, 
+                                       step=0.1,
+                                       key=f"slider_{col}")
     with st.expander("Encoded and Transformed Features"):
         for col in ['station_name_x_encoded', 'log_rainfall_sum', 'log_monthly_rainfall', 
                     'log_prev_day_rainfall', 'log_rolling_mean_7d', 'pca_component_1', 
                     'pca_component_2', 'pca_component_3']:
-            if col in data.columns:
-                input_data[col] = st.number_input(f"{col}", 
-                                                value=float(data[col].mean()), 
-                                                step=0.1,
-                                                key=f"input_{col}_{uuid.uuid4()}")
+            min_val, max_val, default_val = -10.0, 10.0, 0.0
+            if col in data.columns and not data[col].isna().all():
+                min_val = float(data[col].dropna().min())
+                max_val = float(data[col].dropna().max())
+                default_val = float(data[col].dropna().mean())
+            else:
+                st.warning(f"Column {col} not found or contains only NaN. Using default range.")
+            input_data[col] = st.slider(f"{col}", 
+                                       min_value=min_val, 
+                                       max_value=max_val, 
+                                       value=default_val, 
+                                       step=0.1,
+                                       key=f"slider_{col}")
     
     if st.button("Predict", key="predict_button"):
         input_df = pd.DataFrame([input_data])
+        
+        # Debug: Check input_df and model expectations
+        with st.expander("Debug: Prediction Input"):
+            st.write("Input DataFrame columns:", input_df.columns.tolist())
+            try:
+                st.write("Expected features (reg_model):", reg_model.feature_names_in_)
+                st.write("Expected features (clf_model):", clf_model.feature_names_in_)
+            except AttributeError:
+                st.warning("Model does not have feature_names_in_ attribute.")
+        
+        # Ensure all required features are present
+        for col in feature_columns:
+            if col not in input_df.columns:
+                input_data[col] = data[col].mean() if col in data.columns and not data[col].isna().all() else 0.0
+        input_df = pd.DataFrame([input_data])  # Recreate input_df
+        
+        # Reorder columns to match model expectations
         try:
+            input_df = input_df[reg_model.feature_names_in_]
+        except AttributeError:
+            input_df = input_df[feature_columns]
+        
+        try:
+            input_df = input_df.astype(float)  # Ensure numeric types
             reg_pred = reg_model.predict(input_df)[0]
             clf_pred = clf_model.predict(input_df)[0]
             clf_proba = clf_model.predict_proba(input_df)[0][1]
@@ -251,8 +334,11 @@ with st.container():
             st.error(f"Prediction failed: {str(e)}")
             st.code("""
 import pickle
-with open('../Rainfall_app/models/best_random_forest_regressor_model.pkl', 'rb') as f:
+with open('Data/best_random_forest_regressor_model.pkl', 'rb') as f:
     model = pickle.load(f)
-print(model.feature_names_in_)
+try:
+    print(model.feature_names_in_)
+except AttributeError:
+    print("Model does not have feature_names_in_ attribute.")
             """)
     st.markdown('</div>', unsafe_allow_html=True)

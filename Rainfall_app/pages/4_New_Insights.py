@@ -106,7 +106,7 @@ with st.container():
     st.markdown("Explore NLP analysis results with sentiment distribution and topic modeling.")
 
 # File path
-nlp_file_path = 'data/nlp_results.csv'
+nlp_file_path = 'Data/nlp_results.csv'
 
 # Check if file exists and load data
 if os.path.exists(nlp_file_path):
