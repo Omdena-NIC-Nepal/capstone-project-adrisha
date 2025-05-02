@@ -5,7 +5,3 @@ __pycache__/
 # Virtual environments (if any)
 venv/
 .env/
-
-# OS-specific files
-.DS_Store
-Thumbs.db
