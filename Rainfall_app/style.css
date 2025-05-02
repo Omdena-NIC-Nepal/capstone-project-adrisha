@@ -1,0 +1,15 @@
+css
+       body {
+           color: #333;
+           background-color: #f9f9f9;
+       }
+
+       h1 {
+           color: #2196F3;
+       }
+
+       .stButton>button {
+           background-color: #4CAF50;
+           color: white;
+       }
+       
