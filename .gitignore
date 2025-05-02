@@ -6,19 +6,6 @@ __pycache__/
 venv/
 .env/
 
-# Generated data files (unless required for demo)
-Rainfall_app/data/feedback.csv
-# Exclude nlp_results.csv if large or generated; remove this line if small and required
-Rainfall_app/data/nlp_results.csv
-
-# Large datasets and models (to be handled with Git LFS or excluded)
-Data/Raw/*
-Data/Preprocessed/*
-Rainfall_app/models/*
-
-# Generated outputs
-Outputs/*
-
 # OS-specific files
 .DS_Store
 Thumbs.db

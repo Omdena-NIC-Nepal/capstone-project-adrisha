@@ -1,7 +1,8 @@
 
     # My Project Strucure
 
-            Capetown Project Adrisha
+            capstone-projcet-adrisha
+
             ├── Data/
             │   ├── Raw/
             │   ├── Preprocessed/
@@ -24,7 +25,10 @@
             |   |       |__ nlp_results.csv
             |   |       |__ lda_topics.txt
             |   |       |__ regional_performance_regression.csv
+            |   |       |__ regional_performance_classificaiton.csv
             |   |       |__ model_evaluation_results.csv
+            |   |       |__ feedback.csv
+            |   |      
             |   |
             │   ├── app.py
             │   ├── requirements.txt
@@ -36,4 +40,4 @@
             |   |__ Modeling_technique.ipynb
             |   |__ NLP.ipynb
             |   |  __ Model_evaluation_and_ Valiation.ipynb
-            ├── README.md# Rainfall_Nepal
+            ├── README.md
