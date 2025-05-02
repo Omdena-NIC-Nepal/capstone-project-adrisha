@@ -5,6 +5,9 @@ __pycache__/
 # Virtual environments (if any)
 venv/
 .env/
+# Files
+Data/Raw/*
+Data/Preprocessed/*
 
 # OS-specific files
 .DS_Store
