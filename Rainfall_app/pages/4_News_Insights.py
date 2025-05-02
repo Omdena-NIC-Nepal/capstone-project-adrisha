@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import os
 from textblob import TextBlob
 from utils.data_utils import load_nlp_results, load_lda_topics
 import plotly.express as px
@@ -105,79 +104,79 @@ with st.container():
     st.title("📰 News Insights Dashboard")
     st.markdown("Explore NLP analysis results with sentiment distribution and topic modeling.")
 
-# File path
-nlp_file_path = '../Rainfall_app/Data/nlp_results.csv'
-
-# Check if file exists and load data
-if os.path.exists(nlp_file_path):
-    # Load NLP results
+# Load NLP results
+try:
     nlp_data = load_nlp_results()
-
-    # Article Summaries Section
-    with st.container():
-        st.markdown('<div class="card" role="region" aria-label="Article Summaries Section">', unsafe_allow_html=True)
-        st.subheader("📄 Article Summaries")
-        available_columns = [col for col in ['source', 'summary'] if col in nlp_data.columns]
-        
-        if available_columns:
-            # Truncate summary for display to prevent overly wide columns
-            display_data = nlp_data[available_columns].copy()
-            if 'summary' in display_data.columns:
-                display_data['summary'] = display_data['summary'].apply(lambda x: x[:200] + '...' if isinstance(x, str) and len(x) > 200 else x)
-            st.dataframe(display_data, use_container_width=True, height=300)
-        else:
-            st.warning("No expected columns found in nlp_results.csv")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Sentiment Analysis
-    def get_sentiment(text):
-        if isinstance(text, str):
-            analysis = TextBlob(text)
-            if analysis.sentiment.polarity > 0:
-                return 'Positive'
-            elif analysis.sentiment.polarity < 0:
-                return 'Negative'
-            else:
-                return 'Neutral'
-        else:
-            return 'Unknown'
-
-    nlp_data['sentiment'] = nlp_data['summary'].apply(get_sentiment)
-
-    # Sentiment Distribution Section
-    with st.container():
-        st.markdown('<div class="card" role="region" aria-label="Sentiment Distribution Section">', unsafe_allow_html=True)
-        st.subheader("😊 Sentiment Distribution")
-        if 'sentiment' in nlp_data.columns:
-            sentiment_counts = nlp_data['sentiment'].value_counts()
-            fig = px.bar(x=sentiment_counts.index, 
-                        y=sentiment_counts.values, 
-                        title="Sentiment Distribution",
-                        color=sentiment_counts.index,
-                        color_discrete_map={'Positive': '#22c55e', 'Negative': '#ef4444', 'Neutral': '#3b82f6', 'Unknown': '#6b7280'},
-                        labels={'x': 'Sentiment', 'y': 'Count'})
-            fig.update_layout(
-                showlegend=False, 
-                title_x=0.5, 
-                font=dict(size=12), 
-                margin=dict(l=10, r=10, t=50, b=50)
-            )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.warning("Sentiment column not found in nlp_results.csv")
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # LDA Topics Section
-    with st.container():
-        st.markdown('<div class="card" role="region" aria-label="LDA Topics Section">', unsafe_allow_html=True)
-        st.subheader("🔍 Topics")
-        topics = load_lda_topics()
-        st.markdown(f'<div class="topics-box">{topics}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-
-else:
+except FileNotFoundError:
     with st.container():
         st.markdown('<div class="card" role="region" aria-label="Error Section">', unsafe_allow_html=True)
         st.error("Error loading nlp_results.csv: The file does not exist at the specified location.")
-        st.write("Please check the file path and try again.")
+        st.write("Please check the file path and ensure nlp_results.csv is in the Rainfall_app/Data directory.")
         st.markdown('</div>', unsafe_allow_html=True)
+        st.stop()
+
+# Article Summaries Section
+with st.container():
+    st.markdown('<div class="card" role="region" aria-label="Article Summaries Section">', unsafe_allow_html=True)
+    st.subheader("📄 Article Summaries")
+    available_columns = [col for col in ['source', 'summary'] if col in nlp_data.columns]
+    
+    if available_columns:
+        # Truncate summary for display to prevent overly wide columns
+        display_data = nlp_data[available_columns].copy()
+        if 'summary' in display_data.columns:
+            display_data['summary'] = display_data['summary'].apply(lambda x: x[:200] + '...' if isinstance(x, str) and len(x) > 200 else x)
+        st.dataframe(display_data, use_container_width=True, height=300)
+    else:
+        st.warning("No expected columns ('source', 'summary') found in nlp_results.csv")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# Sentiment Analysis
+def get_sentiment(text):
+    if isinstance(text, str):
+        analysis = TextBlob(text)
+        if analysis.sentiment.polarity > 0:
+            return 'Positive'
+        elif analysis.sentiment.polarity < 0:
+            return 'Negative'
+        else:
+            return 'Neutral'
+    else:
+        return 'Unknown'
+
+nlp_data['sentiment'] = nlp_data['summary'].apply(get_sentiment)
+
+# Sentiment Distribution Section
+with st.container():
+    st.markdown('<div class="card" role="region" aria-label="Sentiment Distribution Section">', unsafe_allow_html=True)
+    st.subheader("😊 Sentiment Distribution")
+    if 'sentiment' in nlp_data.columns:
+        sentiment_counts = nlp_data['sentiment'].value_counts()
+        fig = px.bar(x=sentiment_counts.index, 
+                     y=sentiment_counts.values, 
+                     title="Sentiment Distribution",
+                     color=sentiment_counts.index,
+                     color_discrete_map={'Positive': '#22c55e', 'Negative': '#ef4444', 'Neutral': '#3b82f6', 'Unknown': '#6b7280'},
+                     labels={'x': 'Sentiment', 'y': 'Count'})
+        fig.update_layout(
+            showlegend=False, 
+            title_x=0.5, 
+            font=dict(size=12), 
+            margin=dict(l=10, r=10, t=50, b=50)
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.warning("Sentiment column not found in nlp_results.csv")
+    st.markdown('</div>', unsafe_allow_html=True)
+
+# LDA Topics Section
+with st.container():
+    st.markdown('<div class="card" role="region" aria-label="LDA Topics Section">', unsafe_allow_html=True)
+    st.subheader("🔍 Topics")
+    try:
+        topics = load_lda_topics()
+        st.markdown(f'<div class="topics-box">{topics}</div>', unsafe_allow_html=True)
+    except FileNotFoundError:
+        st.error("Error loading lda_topics.txt: The file does not exist at the specified location.")
+        st.write("Please check the file path and ensure lda_topics.txt is in the Rainfall_app/Data directory.")
+    st.markdown('</div>', unsafe_allow_html=True)
