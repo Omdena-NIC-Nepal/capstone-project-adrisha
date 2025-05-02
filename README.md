@@ -3,9 +3,7 @@
 
             capstone-projcet-adrisha
 
-            ├── Data/
-            │   ├── Raw/
-            │   ├── Preprocessed/
+            ├── Preprocessed/
             ├── Rainfall_app/
             │   ├── utils/
             │   │   ├── data_utils.py

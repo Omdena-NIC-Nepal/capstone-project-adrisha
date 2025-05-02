@@ -1,0 +1,13 @@
+Model,Metric,Value
+Best Regression Model,MAE,8.424951451651214e-05
+Best Regression Model,RMSE,0.002446370872926046
+Best Regression Model,R2,0.9999930793305815
+Best Classification Model,Accuracy,1.0
+Best Classification Model,Precision,1.0
+Best Classification Model,Recall,1.0
+Best Classification Model,F1,1.0
+Best Classification Model,ROC-AUC,1.0
+Baseline Regression,MAE,0.4966931660613612
+Baseline Regression,RMSE,0.9303184762802253
+Baseline Regression,R2,-0.0008449507708248039
+Baseline Classification,Accuracy,0.980116470615531
